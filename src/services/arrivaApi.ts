@@ -25,6 +25,15 @@ export interface Departure {
   distanceKm: number;
   price: number;
   note: string;
+  spodSif: number;
+  zapZ: number;
+  zapK: number;
+}
+
+export interface Stop {
+  name: string;
+  time: string;
+  sequenceNumber: number;
 }
 
 function getTimestamp(): string {
@@ -89,6 +98,7 @@ export async function fetchDepartures(
 
   const data = await apiFetch(url) as Array<{
     Departures: Array<{
+      SPOD_SIF: number;
       RPR_NAZ: string;
       ROD_IODH: string;
       ROD_IPRI: string;
@@ -96,6 +106,8 @@ export async function fetchDepartures(
       ROD_KM: number;
       VZCL_CEN: number;
       ROD_OPO: string;
+      ROD_ZAPZ: number;
+      ROD_ZAPK: number;
     }>;
     Error: string;
     ErrorMsg: string;
@@ -113,5 +125,42 @@ export async function fetchDepartures(
     distanceKm: d.ROD_KM,
     price: d.VZCL_CEN,
     note: d.ROD_OPO,
+    spodSif: d.SPOD_SIF,
+    zapZ: d.ROD_ZAPZ,
+    zapK: d.ROD_ZAPK,
   }));
+}
+
+export async function fetchStops(
+  spodSif: number,
+  zapZ: number,
+  zapK: number
+): Promise<Stop[]> {
+  const timestamp = getTimestamp();
+  const token = generateToken(timestamp);
+  const url =
+    `${BASE_URL}/WS_ArrivaSLO_TimeTable_TimeTableStops.aspx` +
+    `?cTimeStamp=${timestamp}&cToken=${token}&SPOD_SIF=${spodSif}&json=1`;
+
+  const data = await apiFetch(url) as Array<{
+    Stops: Array<{
+      POS_NAZ: string;
+      OD_ODHC: string;
+      ZAP_ST: number;
+    }>;
+    Error: string;
+  }>;
+
+  if (!data || !Array.isArray(data) || data.length === 0) return [];
+  if (data[0]?.Error !== '0') return [];
+
+  const allStops = data[0]?.Stops ?? [];
+  return allStops
+    .filter((s) => s.ZAP_ST >= zapZ && s.ZAP_ST <= zapK)
+    .sort((a, b) => a.ZAP_ST - b.ZAP_ST)
+    .map((s) => ({
+      name: s.POS_NAZ,
+      time: s.OD_ODHC,
+      sequenceNumber: s.ZAP_ST,
+    }));
 }

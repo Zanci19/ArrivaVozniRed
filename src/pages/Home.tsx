@@ -33,9 +33,15 @@ import {
   informationCircleOutline,
   searchOutline,
   closeOutline,
+  locateOutline,
+  chevronDownOutline,
+  chevronUpOutline,
 } from 'ionicons/icons';
-import { fetchStations, fetchDepartures, Station, Departure } from '../services/arrivaApi';
+import { fetchStations, fetchDepartures, fetchStops, Station, Departure, Stop } from '../services/arrivaApi';
 import './Home.css';
+
+const NOMINATIM_USER_AGENT = 'ArrivaVozniRed/1.0';
+const GEOLOCATION_TIMEOUT_MS = 10000;
 
 function todayISO(): string {
   return new Date().toISOString().split('T')[0];
@@ -64,6 +70,11 @@ const Home: React.FC = () => {
   const [searchError, setSearchError] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
 
+  const [locating, setLocating] = useState(false);
+  const [locationError, setLocationError] = useState('');
+
+  const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
+
   const resultsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -83,6 +94,7 @@ const Home: React.FC = () => {
     setSearching(true);
     setSearchError('');
     setHasSearched(true);
+    setExpandedIdx(null);
     try {
       const results = await fetchDepartures(fromStation.id, toStation.id, selectedDate);
       setDepartures(results);
@@ -94,6 +106,70 @@ const Home: React.FC = () => {
     } finally {
       setSearching(false);
     }
+  };
+
+  const handleNearestStation = () => {
+    if (!navigator.geolocation) {
+      setLocationError('Vaša naprava ne podpira geolokacije.');
+      return;
+    }
+    setLocating(true);
+    setLocationError('');
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+          setLocationError('Neveljavne koordinate lokacije.');
+          setLocating(false);
+          return;
+        }
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
+            { headers: { 'Accept-Language': 'sl', 'User-Agent': NOMINATIM_USER_AGENT } }
+          );
+          const geo = await res.json();
+          const addr = geo.address ?? {};
+          const locality: string =
+            addr.suburb ?? addr.village ?? addr.town ?? addr.city ?? addr.municipality ?? '';
+          if (!locality) {
+            setLocationError('Ne morem določiti vaše lokacije.');
+            setLocating(false);
+            return;
+          }
+          const locLower = locality.toLowerCase();
+          const matches = stations.filter((s) =>
+            s.name.toLowerCase().startsWith(locLower)
+          );
+          if (matches.length === 0) {
+            setLocationError(`Ni postaj v kraju "${locality}".`);
+            setLocating(false);
+            return;
+          }
+          const best =
+            matches.find(
+              (s) =>
+                s.name.toLowerCase().includes(' ap') ||
+                s.name.toLowerCase().includes('avtobusna')
+            ) ?? matches[0];
+          setFromStation(best);
+          setLocationError('');
+        } catch {
+          setLocationError('Napaka pri iskanju lokacije.');
+        } finally {
+          setLocating(false);
+        }
+      },
+      (error) => {
+        setLocating(false);
+        if (error.code === error.PERMISSION_DENIED) {
+          setLocationError('Dostop do lokacije zavrnjen.');
+        } else {
+          setLocationError('Napaka pri pridobivanju lokacije.');
+        }
+      },
+      { timeout: GEOLOCATION_TIMEOUT_MS }
+    );
   };
 
   return (
@@ -123,22 +199,42 @@ const Home: React.FC = () => {
 
             <div className="search-card">
               {/* From station */}
-              <div
-                className="station-selector ion-activatable"
-                onClick={() => setShowFromModal(true)}
-              >
-                <IonRippleEffect />
-                <div className="station-icon from-icon">
-                  <IonIcon icon={locationOutline} />
+              <div className="from-row">
+                <div
+                  className="station-selector ion-activatable"
+                  onClick={() => setShowFromModal(true)}
+                >
+                  <IonRippleEffect />
+                  <div className="station-icon from-icon">
+                    <IonIcon icon={locationOutline} />
+                  </div>
+                  <div className="station-info">
+                    <span className="station-label">Od</span>
+                    <span className={`station-name ${!fromStation ? 'placeholder' : ''}`}>
+                      {fromStation ? fromStation.name : 'Izberite začetno postajo'}
+                    </span>
+                  </div>
+                  <IonIcon icon={searchOutline} className="station-arrow" />
                 </div>
-                <div className="station-info">
-                  <span className="station-label">Od</span>
-                  <span className={`station-name ${!fromStation ? 'placeholder' : ''}`}>
-                    {fromStation ? fromStation.name : 'Izberite začetno postajo'}
-                  </span>
-                </div>
-                <IonIcon icon={searchOutline} className="station-arrow" />
+                <button
+                  className="locate-btn ion-activatable"
+                  onClick={handleNearestStation}
+                  disabled={locating || stationsLoading}
+                  aria-label="Poišči najbližjo postajo"
+                >
+                  <IonRippleEffect />
+                  {locating
+                    ? <IonSpinner name="crescent" className="locate-spinner" />
+                    : <IonIcon icon={locateOutline} />
+                  }
+                </button>
               </div>
+              {locationError && (
+                <div className="error-msg location-error">
+                  <IonIcon icon={informationCircleOutline} />
+                  <span>{locationError}</span>
+                </div>
+              )}
 
               {/* Swap button */}
               <div className="swap-divider">
@@ -243,7 +339,12 @@ const Home: React.FC = () => {
 
                   <div className="departure-list">
                     {departures.map((dep, idx) => (
-                      <DepartureCard key={idx} departure={dep} />
+                      <DepartureCard
+                        key={idx}
+                        departure={dep}
+                        isExpanded={expandedIdx === idx}
+                        onToggle={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
+                      />
                     ))}
                   </div>
                 </>
@@ -307,11 +408,32 @@ const Home: React.FC = () => {
 /* ---------- Departure Card ---------- */
 interface DepartureCardProps {
   departure: Departure;
+  isExpanded: boolean;
+  onToggle: () => void;
 }
 
-const DepartureCard: React.FC<DepartureCardProps> = ({ departure }) => {
+const DepartureCard: React.FC<DepartureCardProps> = ({ departure, isExpanded, onToggle }) => {
+  const [stops, setStops] = useState<Stop[]>([]);
+  const [stopsLoading, setStopsLoading] = useState(false);
+  const [stopsError, setStopsError] = useState('');
+  const [stopsAttempted, setStopsAttempted] = useState(false);
+
+  useEffect(() => {
+    if (isExpanded && !stopsAttempted && departure.spodSif) {
+      setStopsAttempted(true);
+      setStopsLoading(true);
+      fetchStops(departure.spodSif, departure.zapZ, departure.zapK)
+        .then(setStops)
+        .catch(() => setStopsError('Vmesne postaje niso na voljo.'))
+        .finally(() => setStopsLoading(false));
+    }
+  }, [isExpanded, stopsAttempted, departure.spodSif, departure.zapZ, departure.zapK]);
+
   return (
-    <IonCard className="departure-card">
+    <IonCard
+      className={`departure-card${isExpanded ? ' departure-card--expanded' : ''}`}
+      onClick={onToggle}
+    >
       <IonCardContent className="departure-card-content">
         {/* Times row */}
         <div className="times-row">
@@ -334,6 +456,10 @@ const DepartureCard: React.FC<DepartureCardProps> = ({ departure }) => {
             <span className="time-label">Prihod</span>
             <span className="time-value arrive">{departure.arrivalTime}</span>
           </div>
+          <IonIcon
+            icon={isExpanded ? chevronUpOutline : chevronDownOutline}
+            className="card-chevron"
+          />
         </div>
 
         {/* Details row */}
@@ -362,6 +488,53 @@ const DepartureCard: React.FC<DepartureCardProps> = ({ departure }) => {
           <div className="note-row">
             <IonIcon icon={informationCircleOutline} />
             <IonText color="medium"><small>{departure.note}</small></IonText>
+          </div>
+        )}
+
+        {/* Expandable stops section */}
+        {isExpanded && (
+          <div className="stops-section" onClick={(e) => e.stopPropagation()}>
+            <div className="stops-divider" />
+            <span className="stops-title">Vmesne postaje</span>
+            {stopsLoading && (
+              <div className="stops-loading">
+                <IonSpinner name="crescent" />
+                <span>Nalaganje postaj...</span>
+              </div>
+            )}
+            {!stopsLoading && stopsError && (
+              <div className="stops-message">
+                <IonIcon icon={informationCircleOutline} />
+                <span>{stopsError}</span>
+              </div>
+            )}
+            {!stopsLoading && !stopsError && stops.length === 0 && stopsAttempted && (
+              <div className="stops-message">
+                <IonIcon icon={informationCircleOutline} />
+                <span>Vmesne postaje niso na voljo.</span>
+              </div>
+            )}
+            {!stopsLoading && stops.length > 0 && (
+              <div className="stops-list">
+                {stops.map((stop, i) => {
+                  const classes = [
+                    'stop-item',
+                    i === 0 ? 'stop-item--first' : '',
+                    i === stops.length - 1 ? 'stop-item--last' : '',
+                  ].filter(Boolean).join(' ');
+                  return (
+                    <div key={i} className={classes}>
+                      <span className="stop-time">{stop.time}</span>
+                      <div className="stop-connector">
+                        <div className="stop-dot" />
+                        {i < stops.length - 1 && <div className="stop-line" />}
+                      </div>
+                      <span className="stop-name">{stop.name}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
       </IonCardContent>
