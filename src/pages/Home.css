@@ -1,0 +1,694 @@
+/* ========================================
+   Arriva Vozni Red – Home Page Styles
+   Brand color: #00976A (green-blue teal)
+   ======================================== */
+
+/* ---------- Header ---------- */
+.arriva-toolbar {
+  --background: var(--arriva-primary);
+  --color: #fff;
+  --padding-top: 8px;
+  --padding-bottom: 8px;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-icon {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #fff;
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1;
+}
+
+.logo-arriva {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 1px;
+  text-transform: lowercase;
+}
+
+.logo-subtitle {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* ---------- Content ---------- */
+.arriva-content {
+  --background: #f0f4f8;
+}
+
+/* ---------- Hero Section ---------- */
+.hero-section {
+  position: relative;
+  padding-bottom: 32px;
+}
+
+.hero-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 180px;
+  background: linear-gradient(135deg, var(--arriva-primary) 0%, var(--arriva-secondary) 100%);
+  border-radius: 0 0 32px 32px;
+}
+
+.search-container {
+  position: relative;
+  padding: 20px 16px 0;
+}
+
+.search-title {
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 16px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+/* ---------- Search Card ---------- */
+.search-card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 150, 106, 0.18), 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 8px 0;
+  overflow: hidden;
+}
+
+/* ---------- Station Selector ---------- */
+.station-selector,
+.date-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s;
+}
+
+.station-selector:active,
+.date-selector:active {
+  background: rgba(0, 151, 106, 0.06);
+}
+
+.station-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.from-icon {
+  background: rgba(0, 151, 106, 0.12);
+  color: var(--arriva-primary);
+}
+
+.to-icon {
+  background: rgba(0, 94, 184, 0.12);
+  color: var(--arriva-blue);
+}
+
+.date-icon {
+  background: rgba(255, 152, 0, 0.12);
+  color: #f57c00;
+}
+
+.station-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.station-label {
+  font-size: 11px;
+  color: var(--ion-color-medium);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.station-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.station-name.placeholder {
+  color: #aaa;
+  font-weight: 400;
+}
+
+.station-arrow {
+  color: #bbb;
+  font-size: 18px;
+}
+
+/* ---------- Swap / Divider ---------- */
+.swap-divider {
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 8px;
+}
+
+.divider-line {
+  flex: 1;
+  height: 1px;
+  background: #e8edf2;
+}
+
+.swap-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--arriva-primary);
+  background: #fff;
+  color: var(--arriva-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.swap-btn:not(:disabled):hover {
+  background: var(--arriva-primary);
+  color: #fff;
+}
+
+.swap-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.date-divider {
+  height: 1px;
+  background: #e8edf2;
+  margin: 0 20px;
+}
+
+/* ---------- Search Button ---------- */
+.search-btn {
+  --background: var(--arriva-primary);
+  --background-hover: var(--arriva-dark);
+  --background-activated: var(--arriva-dark);
+  --border-radius: 12px;
+  --box-shadow: 0 4px 16px rgba(0, 151, 106, 0.35);
+  margin: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  height: 52px;
+  letter-spacing: 0.5px;
+}
+
+.error-msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px 12px;
+  color: var(--ion-color-danger);
+  font-size: 14px;
+}
+
+/* ---------- Results Section ---------- */
+.results-section {
+  padding: 0 16px 32px;
+}
+
+.results-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.results-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.results-arrow {
+  color: var(--arriva-primary);
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.results-chip {
+  --background: rgba(0, 151, 106, 0.1);
+  --color: var(--arriva-primary);
+  font-size: 12px;
+  height: 26px;
+}
+
+.results-count {
+  --background: var(--arriva-primary);
+  font-size: 12px;
+  border-radius: 12px;
+  padding: 4px 10px;
+}
+
+/* ---------- Departure Cards ---------- */
+.departure-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.departure-card {
+  margin: 0;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+  border: 1px solid rgba(0, 151, 106, 0.1);
+  overflow: hidden;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.departure-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.06);
+}
+
+.departure-card-content {
+  padding: 16px !important;
+}
+
+/* Times row */
+.times-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.time-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 60px;
+}
+
+.time-label {
+  font-size: 11px;
+  color: #999;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.time-value {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.time-value.depart {
+  color: var(--arriva-primary);
+}
+
+.time-value.arrive {
+  color: var(--arriva-blue);
+}
+
+/* Duration track */
+.duration-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 0 12px;
+}
+
+.duration-line {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.line-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.start-dot {
+  background: var(--arriva-primary);
+}
+
+.end-dot {
+  background: var(--arriva-blue);
+}
+
+.line-track {
+  flex: 1;
+  height: 2px;
+  background: linear-gradient(to right, var(--arriva-primary), var(--arriva-blue));
+  position: relative;
+}
+
+.line-track::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--arriva-light);
+}
+
+.duration-text {
+  font-size: 12px;
+  color: #666;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.duration-text ion-icon {
+  font-size: 13px;
+  color: var(--arriva-light);
+}
+
+/* Details row */
+.details-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #f0f4f8;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #555;
+  background: #f5f7fa;
+  border-radius: 8px;
+  padding: 4px 10px;
+}
+
+.detail-item ion-icon {
+  font-size: 14px;
+  color: #888;
+}
+
+.detail-item.price {
+  background: rgba(0, 151, 106, 0.1);
+  color: var(--arriva-primary);
+  font-weight: 700;
+}
+
+.detail-item.price ion-icon {
+  color: var(--arriva-primary);
+}
+
+/* Note row */
+.note-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed #e8edf2;
+  font-size: 12px;
+  color: #777;
+}
+
+.note-row ion-icon {
+  font-size: 14px;
+  color: #bbb;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ---------- Empty / No results ---------- */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: #aaa;
+}
+
+.empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  color: #ccc;
+}
+
+.empty-state p {
+  font-size: 15px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: #888;
+}
+
+.no-results-icon {
+  font-size: 56px;
+  color: #ccc;
+  margin-bottom: 12px;
+}
+
+.no-results p {
+  font-size: 15px;
+  margin: 0;
+}
+
+/* ---------- Station Picker Modal ---------- */
+.station-modal .modal-wrapper,
+.date-modal .modal-wrapper {
+  border-radius: 20px 20px 0 0 !important;
+}
+
+.station-modal-content,
+.date-modal-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 12px;
+  border-bottom: 1px solid #f0f4f8;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f0f4f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  color: #555;
+  transition: background 0.15s;
+}
+
+.modal-close:hover {
+  background: #e2e8f0;
+}
+
+.station-search {
+  padding: 8px 12px;
+  --background: #f5f7fa;
+  --border-radius: 12px;
+}
+
+.station-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.station-item {
+  --padding-start: 16px;
+  --inner-padding-end: 16px;
+  cursor: pointer;
+}
+
+.station-list-icon {
+  color: var(--arriva-primary);
+  font-size: 18px;
+}
+
+.loading-stations {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 20px;
+  gap: 12px;
+  color: #888;
+}
+
+/* ---------- Date Modal ---------- */
+.arriva-datetime {
+  --background: #fff;
+  width: 100%;
+}
+
+/* ---------- Dark Mode Tweaks ---------- */
+@media (prefers-color-scheme: dark) {
+  .arriva-content {
+    --background: #0f1923;
+  }
+
+  .hero-bg {
+    background: linear-gradient(135deg, var(--arriva-dark) 0%, #004a5a 100%);
+  }
+
+  .search-card {
+    background: #1a2533;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+
+  .station-name {
+    color: #e8edf2;
+  }
+
+  .station-name.placeholder {
+    color: #555566;
+  }
+
+  .divider-line {
+    background: #2a3543;
+  }
+
+  .date-divider {
+    background: #2a3543;
+  }
+
+  .swap-btn {
+    background: #1a2533;
+  }
+
+  .departure-card {
+    background: #1a2533;
+    border-color: rgba(0, 151, 106, 0.15);
+  }
+
+  .detail-item {
+    background: #222e3c;
+    color: #aaaabb;
+  }
+
+  .details-row {
+    border-color: #222e3c;
+  }
+
+  .note-row {
+    border-color: #222e3c;
+  }
+
+  .time-label {
+    color: #666677;
+  }
+
+  .empty-state,
+  .no-results {
+    color: #444455;
+  }
+
+  .results-title {
+    color: #e8edf2;
+  }
+
+  .station-modal-content,
+  .date-modal-content {
+    background: #1a2533;
+  }
+
+  .modal-header {
+    border-color: #2a3543;
+  }
+
+  .modal-header h3 {
+    color: #e8edf2;
+  }
+
+  .modal-close {
+    background: #222e3c;
+    color: #aaa;
+  }
+}
