@@ -1,0 +1,7 @@
+{
+  "name": "Arriva vozni red",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
