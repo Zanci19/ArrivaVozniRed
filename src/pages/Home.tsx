@@ -34,10 +34,8 @@ import {
   searchOutline,
   closeOutline,
   locateOutline,
-  chevronDownOutline,
-  chevronUpOutline,
 } from 'ionicons/icons';
-import { fetchStations, fetchDepartures, fetchStops, Station, Departure, Stop } from '../services/arrivaApi';
+import { fetchStations, fetchDepartures, Station, Departure } from '../services/arrivaApi';
 import './Home.css';
 
 const NOMINATIM_USER_AGENT = 'ArrivaVozniRed/1.0';
@@ -73,8 +71,6 @@ const Home: React.FC = () => {
   const [locating, setLocating] = useState(false);
   const [locationError, setLocationError] = useState('');
 
-  const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
-
   const resultsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -94,7 +90,6 @@ const Home: React.FC = () => {
     setSearching(true);
     setSearchError('');
     setHasSearched(true);
-    setExpandedIdx(null);
     try {
       const results = await fetchDepartures(fromStation.id, toStation.id, selectedDate);
       setDepartures(results);
@@ -342,8 +337,6 @@ const Home: React.FC = () => {
                       <DepartureCard
                         key={idx}
                         departure={dep}
-                        isExpanded={expandedIdx === idx}
-                        onToggle={() => setExpandedIdx(expandedIdx === idx ? null : idx)}
                       />
                     ))}
                   </div>
@@ -408,32 +401,11 @@ const Home: React.FC = () => {
 /* ---------- Departure Card ---------- */
 interface DepartureCardProps {
   departure: Departure;
-  isExpanded: boolean;
-  onToggle: () => void;
 }
 
-const DepartureCard: React.FC<DepartureCardProps> = ({ departure, isExpanded, onToggle }) => {
-  const [stops, setStops] = useState<Stop[]>([]);
-  const [stopsLoading, setStopsLoading] = useState(false);
-  const [stopsError, setStopsError] = useState('');
-  const [stopsAttempted, setStopsAttempted] = useState(false);
-
-  useEffect(() => {
-    if (isExpanded && !stopsAttempted && departure.spodSif) {
-      setStopsAttempted(true);
-      setStopsLoading(true);
-      fetchStops(departure.spodSif, departure.zapZ, departure.zapK)
-        .then(setStops)
-        .catch(() => setStopsError('Vmesne postaje niso na voljo.'))
-        .finally(() => setStopsLoading(false));
-    }
-  }, [isExpanded, stopsAttempted, departure.spodSif, departure.zapZ, departure.zapK]);
-
+const DepartureCard: React.FC<DepartureCardProps> = ({ departure }) => {
   return (
-    <IonCard
-      className={`departure-card${isExpanded ? ' departure-card--expanded' : ''}`}
-      onClick={onToggle}
-    >
+    <IonCard className="departure-card">
       <IonCardContent className="departure-card-content">
         {/* Times row */}
         <div className="times-row">
@@ -456,10 +428,6 @@ const DepartureCard: React.FC<DepartureCardProps> = ({ departure, isExpanded, on
             <span className="time-label">Prihod</span>
             <span className="time-value arrive">{departure.arrivalTime}</span>
           </div>
-          <IonIcon
-            icon={isExpanded ? chevronUpOutline : chevronDownOutline}
-            className="card-chevron"
-          />
         </div>
 
         {/* Details row */}
@@ -488,53 +456,6 @@ const DepartureCard: React.FC<DepartureCardProps> = ({ departure, isExpanded, on
           <div className="note-row">
             <IonIcon icon={informationCircleOutline} />
             <IonText color="medium"><small>{departure.note}</small></IonText>
-          </div>
-        )}
-
-        {/* Expandable stops section */}
-        {isExpanded && (
-          <div className="stops-section" onClick={(e) => e.stopPropagation()}>
-            <div className="stops-divider" />
-            <span className="stops-title">Vmesne postaje</span>
-            {stopsLoading && (
-              <div className="stops-loading">
-                <IonSpinner name="crescent" />
-                <span>Nalaganje postaj...</span>
-              </div>
-            )}
-            {!stopsLoading && stopsError && (
-              <div className="stops-message">
-                <IonIcon icon={informationCircleOutline} />
-                <span>{stopsError}</span>
-              </div>
-            )}
-            {!stopsLoading && !stopsError && stops.length === 0 && stopsAttempted && (
-              <div className="stops-message">
-                <IonIcon icon={informationCircleOutline} />
-                <span>Vmesne postaje niso na voljo.</span>
-              </div>
-            )}
-            {!stopsLoading && stops.length > 0 && (
-              <div className="stops-list">
-                {stops.map((stop, i) => {
-                  const classes = [
-                    'stop-item',
-                    i === 0 ? 'stop-item--first' : '',
-                    i === stops.length - 1 ? 'stop-item--last' : '',
-                  ].filter(Boolean).join(' ');
-                  return (
-                    <div key={i} className={classes}>
-                      <span className="stop-time">{stop.time}</span>
-                      <div className="stop-connector">
-                        <div className="stop-dot" />
-                        {i < stops.length - 1 && <div className="stop-line" />}
-                      </div>
-                      <span className="stop-name">{stop.name}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
           </div>
         )}
       </IonCardContent>
